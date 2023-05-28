@@ -6,6 +6,7 @@ package utils;
 
 import app.*;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  *
@@ -20,7 +21,8 @@ public interface ProgramInterface {
     public int getIndex(String line);
 
     public Film get(String line);
-
+    
+    
     public int getSize();
 
     public void deleteFilm(String name);
@@ -41,6 +43,7 @@ public interface ProgramInterface {
 
     public void sortByRatingDescending();
     
-    public void saveFilmDataToFile() throws IOException;
-    public void SaveDescriptionToFile() throws IOException;
+    public void SaveData() throws IOException;
+    
+    public ArrayList<Film> filmFilter(FilmGenre genre, ArrayList<Film> arr);
 }

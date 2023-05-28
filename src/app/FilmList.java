@@ -2,7 +2,11 @@ package app;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,6 +30,8 @@ public class FilmList implements ProgramInterface {
         try {
             loadFilmDataFromFile();
             loadDescription();
+            //loadRatesBin();
+            loadRates();
         } catch (IOException e) {
             System.out.println("Problem with file");
         } catch (IllegalArgumentException e) {
@@ -83,6 +89,15 @@ public class FilmList implements ProgramInterface {
                 break;
             }
         }
+    }
+
+    public ArrayList<Film> filmFilter(FilmGenre genre, ArrayList<Film> arr) {
+        for (Film f : this.arr) {
+            if (f.getGenre().equals(genre)) {
+                arr.add(f);
+            }
+        }
+        return arr;
     }
 
     @Override
@@ -152,30 +167,82 @@ public class FilmList implements ProgramInterface {
             }
         }
     }
-    
-    public void loadDescription() throws IOException{
+
+    public void loadDescription() throws IOException {
         String FILE_SEPARATOR = System.getProperty("file.separator");
-        try (BufferedReader reader = new BufferedReader(new FileReader("data" + FILE_SEPARATOR + "film_description.txt"))) {
-            String line;
+        try ( BufferedReader reader = new BufferedReader(new FileReader("data" + FILE_SEPARATOR + "film_description.txt"))) {
+            String line, title, description;
             String[] parts;
             int index;
             while ((line = reader.readLine()) != null) {
-                // Process each line containing the film description
                 parts = line.split("\t");
-                String title = parts[0];
-                String description = parts[1];
+
+                title = parts[0];
+                description = parts[1];
                 index = getIndex(title);
-                if(index != -1){
+                if (index != -1) {
                     get(index).setDescription(description);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException("Problem with file " + "film_description.txt" + "\n " + e.getMessage());
         }
     }
-    
-    
+
+    public void loadRatesBin() throws IOException {
+        String FILE_SEPARATOR = System.getProperty("file.separator");
+        String title;
+        int index;
+        try ( DataInputStream in = new DataInputStream(new FileInputStream("data" + FILE_SEPARATOR + "film_rates.dat"))) {
+            while (in.available() > 0) {
+                title = in.readUTF();
+                index = getIndex(title);
+                if (index != -1) {
+                    while (in.available() > 0) {
+                        double rating = in.readDouble();
+                        arr.get(index).rate(rating);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Problem with file " + "film_rates.dat" + "\n " + e.getMessage());
+        }
+    }
+
+    public void loadRates() throws IOException {
+        String FILE_SEPARATOR = System.getProperty("file.separator");
+        String title;
+        String line;
+        String[] parts;
+        double rate;
+        try ( BufferedReader reader = new BufferedReader(new FileReader("data" + FILE_SEPARATOR + "film_rates.txt"))) {
+            int index;
+            while ((line = reader.readLine()) != null) {
+                // Process each line containing the film description
+                parts = line.split("\t");
+                title = parts[0];
+                index = getIndex(title);
+                if (index != -1) {
+                    parts = parts[1].split(", ");
+                    for(String s : parts){
+                        rate = Double. parseDouble(s);
+                        arr.get(index).rate(rate);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Problem with file " + "film_rates.txt" + "\n " + e.getMessage());
+        }
+    }
+
     @Override
+    public void SaveData() throws IOException {
+        SaveDescriptionToFile();
+        saveFilmDataToFile();
+        //saveRatesBinFile();
+        saveRatesToFile();
+    }
+
     public void SaveDescriptionToFile() throws IOException {
         sortByFilmName();
         String FILE_SEPARATOR = System.getProperty("file.separator");
@@ -186,9 +253,7 @@ public class FilmList implements ProgramInterface {
             }
         }
     }
-    
-    
-    @Override
+
     public void saveFilmDataToFile() throws IOException {
         sortByFilmName();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -201,7 +266,33 @@ public class FilmList implements ProgramInterface {
             }
         }
     }
-    
-    
 
+    public void saveRatesBinFile() throws IOException {
+        sortByFilmName();
+        String FILE_SEPARATOR = System.getProperty("file.separator");
+        try ( DataOutputStream out = new DataOutputStream(new FileOutputStream("data" + FILE_SEPARATOR + "film_rates.dat"))) {
+            //int nameLength;
+            for (Film f : arr) {
+                out.writeUTF(f.getName());
+                for (double i : f.getRates()) {
+                    out.writeDouble(i);
+                }
+
+            }
+        }
+    }
+
+    public void saveRatesToFile() throws IOException {
+        sortByFilmName();
+        String FILE_SEPARATOR = System.getProperty("file.separator");
+        try ( BufferedWriter bw = new BufferedWriter(new FileWriter("data" + FILE_SEPARATOR + "film_rates.txt"))) {
+            for (Film f : arr) {
+                bw.write(f.getName() + "\t");
+                for (double i : f.getRates()) {
+                    bw.write(i + ", ");
+                }
+                bw.newLine();
+            }
+        }
+    }
 }
