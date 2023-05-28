@@ -18,7 +18,6 @@ public class Film {
     private int year; // release year
     private LocalTime time;
     private ArrayList<Double> rating = new ArrayList<>();
-    private ArrayList<String> actors = new ArrayList<>();
 
     public Film() {
     }
@@ -81,7 +80,11 @@ public class Film {
     public void setName(String name) {
         this.name = name;
     }
-
+    
+    public ArrayList<Double> getRates(){
+        return rating;
+    }
+    
     public String getDescription() {
         return description;
     }
@@ -127,41 +130,21 @@ public class Film {
         this.year = year;
     }
     
-    public ArrayList<String> getActors() {
-        return actors;
-    }
     
-    
-    public void setActors(ArrayList<String> actors) {
-        this.actors = actors;
-    }
     
     public boolean isEmpty(){
         return (this.genre == null || this.time == null 
                 || this.description == null);
         }
     
-    public void addActor(String actor) {
-        this.actors.add(actor);
-    }
-    
-    public int deleteActor(String actor){
-        for(int i = 0; i<this.actors.size(); i++){
-            if(name.equals(this.actors.get(i))){
-                this.actors.remove(i);
-                return 1;
-            }
-        }
-        return -1;
-    }
     public String mainInfo() {
         return String.format("%25S\t%20S\t%10S\t%4d\n", this.name, this.genre, this.time, this.year);
     }
 
     @Override
     public String toString() {
-        return String.format("name: %S\nrating: %.1f\ngenre: %S\nlength: %S\nrelease year: %d\ndescription: %.100S\n",
-                this.name, this.ratingAVG, this.genre, this.time, this.year, this.description);
+        return String.format("name: %S\nrating: %.1f\ngenre: %S\nlength: %S\nrelease year: %d\n",
+                this.name, this.ratingAVG, this.genre, this.time, this.year);
     }
 
     public String getLength(DateTimeFormatter dtf) {
