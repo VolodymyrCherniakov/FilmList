@@ -1,0 +1,63 @@
+##Class Diagram
+```mermaid
+
+classDiagram
+    FilmList <|-- Film
+    FilmGenre --|> Film
+    FilmList <|-- FilmComparator
+    ProgramInterface <|-- FilmList
+    ConsoleUI <|-- ProgramInterface
+    ConsoleUI <|-- FilmList
+
+    class FilmList{
+        -ArrayList<Film> arr
+    }
+
+    class Film{
+      -String name;
+      -String description;
+      -FilmGenre genre;
+      -double ratingAVG;
+      -int year; // release year
+      -LocalTime time;
+      -ArrayList<Double> rating;
+    }
+
+    class  FilmGenre{
+        <<Enumeration>>
+        ACTION,
+        COMEDY,
+        DRAMA,
+        HORROR,
+        ROMANCE,
+        SCIENCE_FICTION,
+        THRILLER,
+        ANIMATION,
+        DOCUMENTARY,
+        FANTASY,
+        ADVENTURE,
+        HISTORICAL
+    }
+
+    class FilmComparator{
+        <<Comparator>>
+        +byName()
+        +byLength()
+        +byRatingAVG()
+        +byReleaseDate()
+        +byLengthDescending()
+        +byReleaseDateDescending()
+        +byRatingAVGDescending()
+        +byNameDescending()
+    }
+
+    class ProgramInterface{
+        <<Interface>>
+
+    }
+
+    class ConsoleUI{
+        -ProgramInterface program;
+        
+    }
+```    
